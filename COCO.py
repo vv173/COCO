@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+# File name: COCO.py
+#Description: Data processing automation
+# Author: Viktor Vodnev
+# Date: 10-06-2021
+
 import pandas as pd 
 import requests
 import os
