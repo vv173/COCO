@@ -10,33 +10,49 @@ import requests
 import os
 import json
 import argparse
+import logging
 from zipfile import ZipFile
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description='Arguments get parsed via --commands')
-    parser.add_argument("-u", type=str, default=None, required=True, help="Enter the link to the file")
-    parser.add_argument("-p", type=str, default=None, required=True, help="Enter the path for uploading files")
-    args = parser.parse_args()
+    logging.info("Start parsing arguments ")
+    try:
+        parser = argparse.ArgumentParser(description='Arguments get parsed via --commands')
+        parser.add_argument("-u", type=str, default=None, required=True, help="Enter the link to the file")
+        parser.add_argument("-p", type=str, default=None, required=True, help="Enter the path for uploading files")
+        args = parser.parse_args()
+    except:
+        logging.exception("Error reading arguments ")
+    finally:
+        logging.debug("Argument reading completed successfully")
 
     return args
 
-#URL = "http://images.cocodataset.org/annotations/annotations_trainval2017.zip"
-#URL = "https://gist.github.com/akTwelve/c7039506130be7c0ad340e9e862b78d9/archive/73c4e1cc604aa78a45fe08dc8089515d6446f335.zip"
-
 
 def get_archive(URL):
-    FILE = requests.get(URL)
-    open(str(os.path.dirname(__file__)) + '/archive.zip', 'wb').write(FILE.content)
+    logging.info("Downloading the archive")
+    try:
+        FILE = requests.get(URL)
+        open(str(os.path.dirname(__file__)) + '/archive.zip', 'wb').write(FILE.content)
+    except:
+        logging.exception("Error downloading archive")
+    finally:
+        logging.debug("Successful download of the archive")
 
 
 def file_path():
-    jsons_path = []
-    zip_path = os.path.dirname(__file__) + '/archive.zip'
-    with ZipFile(zip_path) as z:
-        z.extractall(str(os.path.dirname(__file__)))
-        for filename in z.namelist():
-            if(filename[-1] != '/'):
-                jsons_path.append(str(os.path.dirname(__file__)) + '/' + str(filename))
+    logging.info("The extraction of files from the zip archive starts ")
+    try:
+        jsons_path = []
+        zip_path = os.path.dirname(__file__) + '/archive.zip'
+        with ZipFile(zip_path) as z:
+            z.extractall(str(os.path.dirname(__file__)))
+            for filename in z.namelist():
+                if(filename[-1] != '/'):
+                    jsons_path.append(str(os.path.dirname(__file__)) + '/' + str(filename))
+    except:
+        logging.exception("Error extracting files from zip archive ")
+    finally:
+        logging.debug("File extraction successfully")
     return jsons_path
 
 def open_load():
@@ -77,20 +93,35 @@ def name_parse():
     return names
 
 def df_to_csv(df, path):
-    names = name_parse()
-    for j in range(len(names)):
-        df.to_csv(path + names[j] + '.csv', index=False)
+    logging.info("Converting date frame to csv file")
+    try:
+        names = name_parse()
+        for j in range(len(names)):
+            df.to_csv(path + names[j] + '.csv', index=False)
+        logging.debug("Successful writing to file ")
+    except:
+        logging.exception("Errors during file creation")
+    finally:
+        logging.debug("The file is completely filled with data")
+
 
 def rm_tmp():
-    zip_path = str(os.path.dirname(__file__)) + '/archive.zip'
-    folder_path = str(os.path.dirname(__file__)) + '/annotations'
-    os.remove(zip_path)
-    for f in os.listdir(folder_path):
-        os.remove(os.path.join(folder_path, f))
-    os.rmdir(folder_path)
+    logging.info("Deleting temporary files ")
+    try:
+        zip_path = str(os.path.dirname(__file__)) + '/archive.zip'
+        folder_path = str(os.path.dirname(__file__)) + '/annotations'
+        os.remove(zip_path)
+        for f in os.listdir(folder_path):
+            os.remove(os.path.join(folder_path, f))
+        os.rmdir(folder_path)
+        logging.debug("Deleting temporary files was successful")
+    except:
+        logging.exception("Failed to delete temporary files")
 
 
 def main():
+    logging.basicConfig(level=logging.DEBUG, filename='coco_info.log',
+     format='%(asctime)s %(levelname)s:%(message)s')
     args = parse_arguments()
     URL = args.u
     UP_PATH = args.p
