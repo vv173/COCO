@@ -27,7 +27,7 @@ def parse_arguments():
 
     return args
 
-
+#Download zip archive from the link
 def get_archive(URL):
     logging.info("Downloading the archive")
     try:
@@ -38,7 +38,7 @@ def get_archive(URL):
     finally:
         logging.debug("Successful download of the archive")
 
-
+#Extract files from zip archive and transfer their location
 def file_path():
     logging.info("The extraction of files from the zip archive starts ")
     try:
@@ -55,6 +55,7 @@ def file_path():
         logging.debug("File extraction successfully")
     return jsons_path
 
+#Extracting jason file to variable 
 def open_load():
     json_f = []
     for path in file_path():
@@ -63,6 +64,8 @@ def open_load():
         f.close()
 
     return json_f
+
+#Parsing a jason file into a dataframe 
 
 def df_convert(jfile):
     
@@ -86,6 +89,7 @@ def df_convert(jfile):
                         'image_url':images[i]['coco_url']}, ignore_index=True)
     return df
 
+#Names for csv files 
 def name_parse():
     names = []
     for path in file_path():
@@ -104,7 +108,7 @@ def df_to_csv(df, path):
     finally:
         logging.debug("The file is completely filled with data")
 
-
+#Removing temporary files
 def rm_tmp():
     logging.info("Deleting temporary files ")
     try:
