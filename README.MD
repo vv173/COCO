@@ -1,9 +1,6 @@
 __COCO-Dataset-Parsing__ 🥥
 
-Kod pobiera archiwum zip zawierające zestaw danych COCO. Rozpakuj go i za pomocą pakietu pandas konwertuje dane do data frame. I konwertuje je do plików csv. 
+The code downloads a zip archive containing a COCO dataset. It will unpack the archive and use the pandas package to convert data to the data frame, additionally converting it to csv files. 
 
-Aby uruchomić program, użyj polecenia: 
-**python**  -u „link do archiwum zip” -n „ścieżka do zapisu pliku” 
-
-Przydatne linki:
-GitHub: https://github.com/vv173/COCO-Dataset-Parsing.git
+To run the program, use the command: 
+  **python -u "link to the zip archive" -n "path to save the file"**
