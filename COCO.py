@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 
 # File name: COCO.py
-#Description: Data processing automation
+# Description: Data processing automation
 # Author: Viktor Vodnev
-# Date: 10-06-2021
+# Date: 07-01-2022
 
-import pandas as pd 
+import pandas as pd
 import requests
 import os
 import json
 import argparse
 import logging
-from zipfile import ZipFile
+from zipfile import ZipFile, BadZipFile
 
-URL = "http://images.cocodataset.org/annotations/annotations_trainval2017.zip"
 JSON_NAME = "person_keypoints_val2017.json"
+SYS_PATH = os.path.abspath(os.path.dirname(__file__))
+
 
 def parse_arguments():
     logging.info("Start parsing arguments")
@@ -27,43 +28,50 @@ def parse_arguments():
         logging.exception("Error reading arguments")
     finally:
         logging.debug("Argument reading completed successfully")
-
     return args
 
+
+# download a zip archive from the URL and rename it to archive.zip
 def get_archive(URL):
     logging.info("Downloading the archive")
     try:
         FILE = requests.get(URL)
-        open(str(os.path.dirname(__file__)) + '/archive.zip', 'wb').write(FILE.content)
+        open(SYS_PATH + '/archive.zip', 'wb').write(FILE.content)
     except:
         logging.exception("Error downloading archive")
     finally:
         logging.debug("Successful download of the archive")
 
-# check if file exist an return path
+
+# check if the file exist and return path
 def unzip():
     logging.info("The extraction of files from the zip archive starts ")
     try:
-        zip_path = os.path.dirname(__file__) + '/archive.zip'
+        zip_path = SYS_PATH + '/archive.zip'
         with ZipFile(zip_path) as z:
-            z.extractall(str(os.path.dirname(__file__)))
+            z.extractall(SYS_PATH)
             for filename in z.namelist():
                 if(JSON_NAME in filename):
-                    json_path = str(os.path.dirname(__file__)) + '/' + str(filename)
+                    json_path = SYS_PATH + '/' + str(filename)
                     return json_path
-    except:
+    except BadZipFile:
         logging.exception("Error extracting files from zip archive")
     finally:
         logging.debug("File extracted successfully")
 
 
+# load json file to a variable
 def open_load(json_path):
-    f = open(json_path)
-    json_f = json.load(f)
-    f.close()
-    return json_f
+    try:
+        f = open(json_path)
+        json_f = json.load(f)
+        f.close()
+        return json_f
+    except OSError:
+        logging.exception("Could not open/read file")
 
 
+# converting json to data frame
 def df_convert(json_file):
     columns  = ["label", "image_name", "image_width", "image_height", "x_min", "y_min", "x_max", "y_max", "image_url"]
     data = []
@@ -74,17 +82,18 @@ def df_convert(json_file):
     for i in range(len(images)):
         for j in range(len(annotations)):
             if(images[i]['id'] == annotations[j]['image_id']):
-                df = df.append({'label':categories[0]['name'], 'image_name':images[i]['file_name'], 
-                'image_width':images[i]['width'], 'image_height':images[i]['height'], 
-                'x_min':annotations[j]['bbox'][0], 'y_min':annotations[j]['bbox'][0] , 
+                df = df.append({'label':categories[0]['name'], 'image_name':images[i]['file_name'],
+                'image_width':images[i]['width'], 'image_height':images[i]['height'],
+                'x_min':annotations[j]['bbox'][0], 'y_min':annotations[j]['bbox'][0] ,
                 # x_max = x_min + width of bounding box
                 'x_max': round(annotations[j]['bbox'][2] + annotations[j]['bbox'][0], 3),
                 # y_max = y_min + height of bounding box
-                'y_max': round(annotations[j]['bbox'][3] + annotations[j]['bbox'][1], 3), 
-                'image_url':images[i]['coco_url']}, ignore_index=True)
+                'y_max': round(annotations[j]['bbox'][3] + annotations[j]['bbox'][1], 3),
+                'image_url': images[i]['coco_url']}, ignore_index=True)
     return df
 
 
+# converting dataframe to csv
 def df_to_csv(df, csv_path):
     logging.info("Converting date frame to csv file")
     try:
@@ -96,12 +105,12 @@ def df_to_csv(df, csv_path):
         logging.debug("The file is completely filled with data")
 
 
-#Removing temporary files
+# Removing temporary files
 def rm_tmp():
     logging.info("Deleting temporary files ")
     try:
-        zip_path = str(os.path.dirname(__file__)) + '/archive.zip'
-        folder_path = str(os.path.dirname(__file__)) + '/annotations'
+        zip_path = SYS_PATH + '/archive.zip'
+        folder_path = SYS_PATH + '/annotations'
         os.remove(zip_path)
         for f in os.listdir(folder_path):
             os.remove(os.path.join(folder_path, f))
@@ -113,13 +122,16 @@ def rm_tmp():
 
 def main():
     logging.basicConfig(level=logging.DEBUG, filename='coco_info.log',
-        format='%(asctime)s %(levelname)s:%(message)s')
-    #args = parse_arguments()
+                        format='%(asctime)s %(levelname)s:%(message)s')
+    args = parse_arguments()
+    csv_path = args.p
+    URL = args.u
+    URL = "http://images.cocodataset.org/annotations/annotations_trainval2017.zip"
     get_archive(URL)
-    csv_path = "/home/vv173/"
     df = df_convert(open_load(unzip()))
-    df_to_csv(df.head(5), csv_path)
+    df_to_csv(df, csv_path)
     rm_tmp()
+
 
 if __name__ == '__main__':
     main()

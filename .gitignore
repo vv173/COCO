@@ -1,2 +1,5 @@
 temp*
 *.log
+*.csv
+*.json
+*.zip
