@@ -3,3 +3,6 @@ temp*
 *.csv
 *.json
 *.zip
+*.tar.gz
+*.whl
+wheelhouse

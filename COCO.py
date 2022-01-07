@@ -126,7 +126,6 @@ def main():
     args = parse_arguments()
     csv_path = args.p
     URL = args.u
-    URL = "http://images.cocodataset.org/annotations/annotations_trainval2017.zip"
     get_archive(URL)
     df = df_convert(open_load(unzip()))
     df_to_csv(df, csv_path)
