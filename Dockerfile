@@ -1,4 +1,4 @@
-FROM python:3.8.10-slim-buster
+FROM clearlinux/python:3.8
 
 RUN useradd -m coco
 USER coco
