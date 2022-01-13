@@ -6,10 +6,8 @@ WORKDIR /home/coco/
 
 COPY --chown=coco:coco requirements.txt .
 COPY --chown=coco:coco COCO.py .
-COPY --chown=coco:coco start.sh .
 
 RUN chmod +x ./COCO.py && \
-    chmod +x ./start.sh && \
     mkdir /home/coco/wheelhouse && \
     mkdir /home/coco/data
 

@@ -15,8 +15,8 @@ To run the program:
 
 3) Now you need to build docker image from Dockerfile: 
   
-  `docker build -t v17v3/cocoparsing:v3.1 .`
+  `docker build -t v17v3/cocoparsing:v3.2 .`
 
 4) And run the docker container:
 
-  `docker run -dt --env URL="http://images.cocodataset.org/annotations/annotations_trainval2017.zip" --env COCO_PATH="/home/coco/data/" v17v3/cocoparsing:v3.1`
+  `docker run -dt --env URL="http://images.cocodataset.org/annotations/annotations_trainval2017.zip" --env COCO_PATH="/home/coco/data/" v17v3/cocoparsing:v3.2`
